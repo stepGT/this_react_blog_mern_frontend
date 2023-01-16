@@ -25,8 +25,16 @@ export const Login = () => {
     },
   });
 
-  const onSubmit = (values) => {
-    dispatch(fetchUserData(values));
+  const onSubmit = async (values) => {
+    const data = await dispatch(fetchUserData(values));
+
+    if (!data.payload) {
+      return alert('Failed to log in!');
+    }
+
+    if ('token' in data.payload) {
+      window.localStorage.setItem('token', data.payload.token);
+    }
   };
 
   if (isAuth) return <Navigate to="/" />;
