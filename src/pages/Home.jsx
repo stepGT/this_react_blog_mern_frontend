@@ -12,6 +12,7 @@ import { fetchPosts, fetchTags } from '../redux/slices/posts';
 export const Home = () => {
   const dispatch = useDispatch();
   const { posts, tags } = useSelector((state) => state.posts);
+  const userData = useSelector((state) => state.auth.data);
   const isPostsLoading = posts.status === 'loading';
   const isTagsLoading = tags.status === 'loading';
   //
@@ -41,7 +42,7 @@ export const Home = () => {
                 viewsCount={el.viewsCount}
                 commentsCount={3}
                 tags={el.tags}
-                isEditable
+                isEditable={userData?._id === el.user._id}
                 isLoading={false}
               />
             ),
