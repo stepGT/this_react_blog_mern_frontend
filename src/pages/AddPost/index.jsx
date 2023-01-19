@@ -1,4 +1,7 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
+import { isAuthSelector } from '../../redux/slices/auth';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
@@ -8,6 +11,7 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
 export const AddPost = () => {
+  const isAuth = useSelector(isAuthSelector);
   const imageUrl = '';
   const [value, setValue] = React.useState('');
 
@@ -33,6 +37,8 @@ export const AddPost = () => {
     }),
     [],
   );
+
+  if (!isAuth) return <Navigate to="/" />;
 
   return (
     <Paper style={{ padding: 30 }}>
