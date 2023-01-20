@@ -38,7 +38,7 @@ export const AddPost = () => {
     [],
   );
 
-  if (!isAuth) return <Navigate to="/" />;
+  if (!window.localStorage.getItem('token') && !isAuth) return <Navigate to="/" />;
 
   return (
     <Paper style={{ padding: 30 }}>
