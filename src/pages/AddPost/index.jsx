@@ -14,6 +14,8 @@ export const AddPost = () => {
   const isAuth = useSelector(isAuthSelector);
   const imageUrl = '';
   const [value, setValue] = React.useState('');
+  const [title, setTitle] = React.useState('');
+  const [tags, setTags] = React.useState('');
 
   const handleChangeFile = () => {};
 
@@ -41,7 +43,7 @@ export const AddPost = () => {
   if (!window.localStorage.getItem('token') && !isAuth) return <Navigate to="/" />;
 
   return (
-    <Paper style={{ padding: 30 }}>
+    <Paper elevation={0} style={{ padding: 30 }}>
       <Button variant="outlined" size="large">
         Загрузить превью
       </Button>
@@ -61,8 +63,17 @@ export const AddPost = () => {
         variant="standard"
         placeholder="Заголовок статьи..."
         fullWidth
+        value={title}
+        onChange={e => setTitle(e.target.value)}
       />
-      <TextField classes={{ root: styles.tags }} variant="standard" placeholder="Тэги" fullWidth />
+      <TextField
+        classes={{ root: styles.tags }}
+        variant="standard"
+        placeholder="Тэги"
+        fullWidth
+        value={tags}
+        onChange={e => setTags(e.target.value)}
+      />
       <SimpleMDE className={styles.editor} value={value} onChange={onChange} options={options} />
       <div className={styles.buttons}>
         <Button size="large" variant="contained">
