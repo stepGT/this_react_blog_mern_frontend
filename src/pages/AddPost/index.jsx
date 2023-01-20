@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from '../../axios';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { isAuthSelector } from '../../redux/slices/auth';
@@ -11,13 +12,25 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
 export const AddPost = () => {
+  const inputFileRef = React.useRef(null);
   const isAuth = useSelector(isAuthSelector);
-  const imageUrl = '';
   const [value, setValue] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
+  const [imageUrl, setImageUrl] = React.useState('');
 
-  const handleChangeFile = () => {};
+  const handleChangeFile = async (e) => {
+    try {
+      const formData = new FormData();
+      const file = e.target.files[0];
+      formData.append('image', file);
+      const { data } = await axios.post('/upload', formData);
+      setImageUrl(data.url);
+    } catch (error) {
+      console.warn(error);
+      alert('Error upload file!');
+    }
+  };
 
   const onClickRemoveImage = () => {};
 
@@ -44,17 +57,17 @@ export const AddPost = () => {
 
   return (
     <Paper elevation={0} style={{ padding: 30 }}>
-      <Button variant="outlined" size="large">
+      <Button onClick={() => inputFileRef.current.click()} variant="outlined" size="large">
         Загрузить превью
       </Button>
-      <input type="file" onChange={handleChangeFile} hidden />
+      <input ref={inputFileRef} type="file" onChange={handleChangeFile} hidden />
       {imageUrl && (
-        <Button variant="contained" color="error" onClick={onClickRemoveImage}>
-          Удалить
-        </Button>
-      )}
-      {imageUrl && (
-        <img className={styles.image} src={`http://localhost:4444${imageUrl}`} alt="Uploaded" />
+        <>
+          <Button variant="contained" color="error" onClick={onClickRemoveImage}>
+            Удалить
+          </Button>
+          <img className={styles.image} src={`http://localhost:4444${imageUrl}`} alt="Uploaded" />
+        </>
       )}
       <br />
       <br />
