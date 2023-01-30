@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from '../../axios';
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { isAuthSelector } from '../../redux/slices/auth';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
@@ -12,9 +12,10 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
 export const AddPost = () => {
+  const navigate = useNavigate();
   const inputFileRef = React.useRef(null);
   const isAuth = useSelector(isAuthSelector);
-  const [value, setValue] = React.useState('');
+  const [text, setText] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
@@ -37,7 +38,7 @@ export const AddPost = () => {
   };
 
   const onChange = React.useCallback((value) => {
-    setValue(value);
+    setText(value);
   }, []);
 
   const options = React.useMemo(
@@ -54,6 +55,23 @@ export const AddPost = () => {
     }),
     [],
   );
+
+  const onSubmit = async () => {
+    try {
+      //setLoading(true);
+      const fields = {
+        title,
+        imageUrl,
+        tags,
+        text,
+      };
+      const { data } = await axios.post('/posts', fields);
+      navigate(`/posts/${data._id}`);
+    } catch (err) {
+      console.warn(err);
+      alert('Error create post!');
+    }
+  };
 
   if (!window.localStorage.getItem('token') && !isAuth) return <Navigate to="/" />;
 
@@ -89,9 +107,9 @@ export const AddPost = () => {
         value={tags}
         onChange={e => setTags(e.target.value)}
       />
-      <SimpleMDE className={styles.editor} value={value} onChange={onChange} options={options} />
+      <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
-        <Button size="large" variant="contained">
+        <Button onClick={onSubmit} size="large" variant="contained">
           Опубликовать
         </Button>
         <a href="/">
