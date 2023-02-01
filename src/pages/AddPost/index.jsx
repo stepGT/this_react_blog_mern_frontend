@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import axios from '../../axios';
 import { useSelector } from 'react-redux';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 import { isAuthSelector } from '../../redux/slices/auth';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
@@ -12,6 +12,7 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 
 export const AddPost = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const inputFileRef = React.useRef(null);
   const isAuth = useSelector(isAuthSelector);
@@ -19,6 +20,7 @@ export const AddPost = () => {
   const [title, setTitle] = React.useState('');
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
+  const isEditing = Boolean(id);
 
   const handleChangeFile = async (e) => {
     try {
@@ -39,6 +41,23 @@ export const AddPost = () => {
 
   const onChange = React.useCallback((value) => {
     setText(value);
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(`/posts/${id}`)
+        .then(({ data }) => {
+          setText(data.text);
+          setTitle(data.title);
+          setImageUrl(data.imageUrl);
+          setTags(data.tags.join(','));
+        })
+        .catch((err) => {
+          console.warn(err);
+          alert('Error fetch post!');
+        });
+    }
   }, []);
 
   const options = React.useMemo(
@@ -65,8 +84,14 @@ export const AddPost = () => {
         tags,
         text,
       };
-      const { data } = await axios.post('/posts', fields);
-      navigate(`/posts/${data._id}`);
+
+      const { data } = isEditing
+        ? await axios.patch(`/posts/${id}`, fields)
+        : await axios.post('/posts', fields);
+
+      const _id = isEditing ? id : data._id;
+
+      navigate(`/posts/${_id}`);
     } catch (err) {
       console.warn(err);
       alert('Error create post!');
@@ -110,7 +135,7 @@ export const AddPost = () => {
       <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
         <Button onClick={onSubmit} size="large" variant="contained">
-          Опубликовать
+          {isEditing ? 'Сохранить' : 'Опубликовать'}
         </Button>
         <a href="/">
           <Button size="large">Отмена</Button>
